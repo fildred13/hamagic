@@ -1,0 +1,103 @@
+{% extends "base.html" %}
+
+{% load deck_tags %}
+
+{% block content %}
+	<div id="decks" class="boxed">
+		<h3>All Active Decks</h3>
+		<table class="sorted_table">
+			<thead>
+				<tr>
+					<th>Deck</th>
+					<th>Planeswalker</th>
+					<th>Format</th> 
+					<th>Type</th>
+					<th>Game Wins</th>
+					<th>Game Losses</th>
+					<th>Match Wins</th>
+					<th>Match Losses</th>
+					<th>Win Rate</th>
+					<th>Semis App.</th>
+					<th>Finals App.</th>
+					<th>Tourney Wins</th>
+					<th>Tourney Losses</th>
+					<th>Bow Outs</th>
+				</tr>
+			</thead>
+			<tbody>
+				{% for deck in decks %}
+					<tr class="striped">
+					  <td><a href="/deck/{{deck.slug}}/">{{ deck.name }}</a></td>
+					  <td><a href="/user/{{deck.user.username}}/">{{ deck.user }}</a></td>
+					  <td class="text_center">{{ deck.get_format_display }}</td> 
+					  <td class="text_center">{{ deck.get_type_display }}</td>
+					  <td class="text_center">{{ deck.game_wins }}</td>
+					  <td class="text_center">{{ deck.game_losses }}</td>
+					  <td class="text_center">{{ deck.match_wins}}</td>
+					  <td class="text_center">{{ deck.match_losses }}</td>
+					  <td class="text_center">{{ deck.win_rate}}%</td>
+					  <td class="text_center">{{ deck.tourney_semis}}</td>
+					  <td class="text_center">{{ deck.tourney_finals}}</td>
+					  <td class="text_center">{{ deck.tourney_wins }}</td>
+					  <td class="text_center">{{ deck.tourney_losses }}</td>
+					  <td class="text_center">{{ deck.tourney_bow_outs }}</td>
+					</tr>
+				{% endfor %}
+			</tbody>
+		</table>
+	</div>
+	
+	<div id="add_new_deck" class="boxed">
+		{% if username %}
+			<h3>Deck Uploader</h3>
+			<form action="/deck/" method="post">{% csrf_token %}
+				{{ form.as_p }}
+				<input type="submit" value="Submit Deck" />
+			</form>
+		{% else %}
+			<p>Please <a href="/login/">login</a> to upload decks.</p>
+		{% endif %}
+	</div>
+	
+	<div id="inactive_decks" class="boxed">
+		<h3>All Inactive Decks</h3>
+		{% if inactive_decks %} 
+			<table class="sorted_table">
+				<thead>
+					<tr>
+						<th>Deck</th>
+						<th>Planeswalker</th>
+						<th>Format</th> 
+						<th>Type</th>
+						<th>Game Wins</th>
+						<th>Game Losses</th>
+						<th>Match Wins</th>
+						<th>Match Losses</th>
+						<th>Win Rate</th>
+						<th>Tourney Wins</th>
+						<th>Tourney Losses</th>
+					</tr>
+				</thead>
+				<tbody>
+					{% for deck in inactive_decks %}
+						<tr class="striped">
+						  <td><a href="/deck/{{deck.slug}}/">{{ deck.name }}</a></td>
+						  <td><a href="/user/{{deck.user.username}}/">{{ deck.user }}</a></td>
+						  <td class="text_center">{{ deck.get_format_display }}</td> 
+						  <td class="text_center">{{ deck.get_type_display }}</td>
+						  <td class="text_center">{{ deck.game_wins }}</td>
+						  <td class="text_center">{{ deck.game_losses }}</td>
+						  <td class="text_center">{{ deck.match_wins}}</td>
+						  <td class="text_center">{{ deck.match_losses }}</td>
+						  <td class="text_center">{{ deck.win_rate}}%</td>
+						  <td class="text_center">{{ deck.tourney_wins }}</td>
+						  <td class="text_center">{{ deck.tourney_losses }}</td>
+						</tr>
+					{% endfor %}
+				</tbody>
+			</table>
+		{% else %}
+			<p>No inactive decks.</p>
+		{% endif %}
+	</div>
+{% endblock content %}

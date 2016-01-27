@@ -1,0 +1,22 @@
+#banner {
+	min-width: 0px;
+	width: 100%;
+	margin: 0px auto;
+}
+
+#logo {
+	float:none;
+	text-align: center;	
+}
+
+#head {
+	margin-top: 20px;
+	float:none;
+	text-align: center;
+	display: none;
+}
+#subhead {
+	margin-top: 20px;
+	float:none;
+	text-align: center;		
+}

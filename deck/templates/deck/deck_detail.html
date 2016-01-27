@@ -1,0 +1,141 @@
+{% extends "base.html" %}
+
+{% load deck_tags %}
+{% load tourney_tags %}
+
+{% block content %}
+	<div id="deck_detail" class="boxed">
+		<h3>{{deck.name}}</h3>
+		<p><a href="/user/{{deck.user.username}}/">{{ deck.user }}</a><p>
+		<div class="scroll_container">
+			<table>
+				<thead>
+					<tr>
+						<th>Format</th> 
+						<th>Type</th>
+						<th>Packs</th>
+						<th>Game Wins</th>
+						<th>Game Losses</th>
+						<th>Match Wins</th>
+						<th>Match Losses</th>
+						<th>Win Rate</th>
+						<th>Semis App.</th>
+						<th>Finals App.</th>
+						<th>Tourney Wins</th>
+						<th>Tourney Losses</th>
+						<th>Bow Outs</th>
+					</tr>
+				</thead>
+				<tbody>
+					<tr>
+						 <td class="text_center">{{ deck.get_format_display }}</td> 
+						 <td class="text_center">{{ deck.get_type_display }}</td>
+						 <td class="text_center">{{ deck.packs }}</td>
+						 <td class="text_center">{{ deck.game_wins }}</td>
+						 <td class="text_center">{{ deck.game_losses }}</td>
+						 <td class="text_center">{{ deck.match_wins}}</td>
+						 <td class="text_center">{{ deck.match_losses }}</td>
+						 <td class="text_center">{{ deck.win_rate}}%</td>
+						 <td class="text_center">{{ deck.tourney_semis}}%</td>
+						 <td class="text_center">{{ deck.tourney_finals}}%</td>
+						 <td class="text_center">{{ deck.tourney_wins }}</td>
+						 <td class="text_center">{{ deck.tourney_losses }}</td>
+						 <td class="text_center">{{ deck.tourney_bow_outs }}</td>
+					</tr>
+				</tbody>
+			</table>
+		</div>
+	</div>
+	
+	<div id="deck_tourneys" class="boxed">
+		<h3>Active Tournaments</h3>
+		{% if active_tourneys %}
+			<table class="sorted_table">
+				<thead>
+					<tr>
+						<th>Tournament</th>
+						<th>Deck Status</th>
+						<th>Matches Remaining</th>
+						<th>Registration Deadline</th>
+						<th>Start Date</th>
+					</tr>
+				</thead>
+				<tbody>
+					{% for tourney, status in active_tourneys %}
+						<tr class="striped">
+							<td><a class="tourney_link" href="/tourney/{{tourney.slug}}/">{{tourney.name}}</a></td>
+							<td class="text_center">{{ status }}</td>	
+							<td class="text_center">{{tourney.matches_remaining}}</td>
+							<td class="text_center">{% if tourney.registration_deadline|has_passed %}{{tourney.registration_deadline|date:"F dS"}} at {{ tourney.registration_deadline|time:"P" }}{% else %}Closed{% endif %}</td>
+							<td class="text_center">{{tourney.start_date}}</td>
+						</tr>
+					{% endfor %}
+				</tbody>
+			</table>
+		{% else %}
+			<p>No active tournaments.</p>
+		{% endif %}
+	</div>
+	
+	<div id="deck_list" class="boxed">
+		<h3>Deck List</h3>
+		<ul>
+			{% for line in deck_list_lines %}
+				{{ line|safe }}
+			{% endfor %}
+		</ul>
+	</div>
+	
+	<div id="deck_past_tourneys" class="boxed">
+		<h3>Past Tournaments</h3>
+		{% if past_tourneys %}
+			<table class="sorted_table">
+				<thead>
+					<tr>
+						<th>Tournament</th>
+						<th>User Victory?</th>
+						<th>This Deck?</th>
+						<th>Start Date</th>
+						<th>Finish Date</th>
+					</tr>
+				</thead>
+				<tbody>
+					{% for tourney in past_tourneys %}
+						<tr class="striped">
+							<td><a class="tourney_link" href="/tourney/{{tourney.slug}}/">{{tourney.name}}</a></td>
+							<td class="text_center">{% if tourney.winner == deck.user %}Victory{% else %}Defeat{% endif %}</td>
+							<td class="text_center">{% if tourney.winning_deck.get == deck %}Victory{% else %}Defeat{% endif %}</td>
+							<td class="text_center">{{tourney.start_date}}</td>
+							<td class="text_center">{{tourney.finished_date}}</td>
+						</tr>
+					{% endfor %}
+				</tbody>
+			</table>
+		{% else %}
+			<p>No past tournaments yet.</p>
+		{% endif %}
+	</div>
+	
+	<div id="deck_editor" class="boxed">
+		<h3>Edit Deck</h3>
+		{% if username == deck.user.username %}
+			{% if safe_to_change == False %}
+				<p><span style="color: #DD660E;">WARNING:</span> This deck is participating in active tournament(s).  Its decklist for that/those tournament(s) should not be altered.  If you wish to add an additional decklist for this deck, see the bottom of the <a href="/decklists/">decklists</a> page for a full explanation.</p>
+			{% endif %}
+			<form action="/deck/{{deck.slug}}/" method="post">{% csrf_token %}
+				{{ form.as_p }}
+				<input type="submit" value="Update Deck" />
+			</form>
+		{% elif username %}
+			<p>Only the deck owner may edit this deck</p>
+		{% else %}
+			<p>Please <a href="/login/">login</a> to edit your decks.</p>
+		{% endif %}
+	</div>
+	
+{% endblock content %}
+
+{% block page_specific_js %}
+	<script src="https://deckbox.org/assets/external/tooltip.js"></script>
+	<script src="/static/source/gatherer_link.js"></script>
+{% endblock page_specific_js %}

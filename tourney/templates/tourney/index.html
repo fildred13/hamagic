@@ -1,0 +1,275 @@
+{% extends "base.html" %}
+
+{% load deck_tags %}
+{% load tourney_tags %}
+
+{% block page_specific_css %}
+	<link rel="stylesheet" type="text/css" media="screen and (max-width: 1400px)" href="/static/styles/narrow_homepage.css">
+{% endblock page_specific_css %}
+
+{% block content %}
+	<div id="sidebar">
+		{% if username %}
+			<a href="user/{{user.username}}/"><div id="my_account" class="boxed">
+				<h3 id="my_account_text">My Account</h3>
+			</div></a>
+		
+			<div id="my_matches" class="boxed">
+				<h3>My Matches</h3>
+				{% if user_matches %}
+					<table class="sorted_table">
+						<thead>
+							<tr>
+								<th>First Deck</th>
+								<th>Second Deck</th>
+								<th>Opponent</th>
+								<th>Tournament</th> 
+								<th>Round</th>
+							</tr>
+						</thead>
+						<tbody>
+							{% for match in user_matches %}
+								<tr class="striped">
+								  <td><a href="/deck/{{match.first_deck.slug}}">{{ match.first_deck.name }}</a></td>
+								  
+								  {% if match.second_deck %}
+								  	<td class="text_center"><a href="/deck/{{match.second_deck.slug}}">{{ match.second_deck.name }}</a></td>
+								  {% else %}
+								  	<td class="text_center">TBD</td>
+								  {% endif %}
+								  
+								  {% if match.first_deck.user == user and match.second_deck %}
+								  	<td class="text_center"><a href="user/{{match.second_deck.user.username}}/">{{match.second_deck.user.username}}</a></td>
+								  {% elif match.second_deck.user == user %}
+								  	<td class="text_center"><a href="user/{{match.first_deck.user.username}}/">{{match.first_deck.user.username}}</a></td>
+								  {% else %}
+								  	<td class="text_center">TBD</td>
+								  {% endif %}
+								  
+								  <td class="text_center tourney_link"><a href="/tourney/{{match.tourney.slug}}/">{{ match.tourney.name }}</a></td>
+								  <td class="text_center">{% if match.is_final %}Final{% elif match.is_semi %}Semifinal{% else %}{{ match.round }}{% endif %}</td>
+								</tr>
+							{% endfor %}
+						</tbody>
+					</table>
+				{% else %}
+					<p>No pending matches.</p>
+				{% endif %}
+			</div>
+			
+			<div id="my_tourneys" class="boxed">
+				<h3>My Tournaments</h3>
+				{% if user_tourneys %}
+					<table class="sorted_table">
+						<thead>
+							<tr>
+								<th>Tournament</th>
+								<th>Format</th> 
+								<th>Type</th>
+							</tr>
+						</thead>
+						<tbody>
+							{% for tourney in user_tourneys %}
+								<tr class="striped">
+								  	<td class="tourney_link"><a href="/tourney/{{tourney.slug}}/">{{ tourney.name}}</a></td>
+								  	<td class="text_center">{{ tourney.get_format_display }}</td> 
+								  	<td class="text_center">{{ tourney.get_type_display }}</td>
+								</tr>
+							{% endfor %}
+						</tbody>
+					</table>
+				{% else %}
+					<p>Not currently participating in any tournaments.</p>
+				{% endif %}
+			</div>
+			
+			<div id="my_decks" class="boxed">
+				<h3>My Decks</h3>
+				{% if user_decks %}
+					<p><a href="/user/{{user.username}}/">View My Decks</a></p>
+					<table class="sorted_table">
+						<thead>
+							<tr>
+								<th>Deck</th>
+								<th>Format</th> 
+								<th>Type</th>
+								<th>Win Rate</th>
+							</tr>
+						</thead>
+						<tbody>
+							{% for deck in user_decks %}
+								<tr class="striped">
+								  <td><a href="/deck/{{deck.slug}}/">{{ deck.name }}</a></td>
+								  <td class="text_center">{{ deck.get_format_display }}</td> 
+								  <td class="text_center">{{ deck.get_type_display }}</td>
+								  <td class="text_center">{{ deck.win_rate}}%</td>
+								</tr>
+							{% endfor %}
+						</tbody>
+					</table>
+				{% else %}
+					<p>No decks yet. <a href=/deck/>Upload?</a></p>
+				{% endif %}
+			</div>
+		{% else %}
+			<a href="/login/">
+			<div id="not_logged_in" class="boxed">
+					<p>Please login to access My Magic</p>
+			</div>
+			</a>
+		{% endif %}
+	</div>
+
+
+	<div id="main_col">
+		<div id="tourneys" class="boxed">
+			<h3>Current Tournaments</h3>
+			<p class="small_text">All times EST</p>
+			{% if tourneys %}
+				<table class="sorted_table">
+					<thead> 
+						<tr>
+	  						<th>Tournament</th>
+	  						<th>Format</th> 
+	  						<th>Type</th>
+	  						<th>Max Decks Per</th>
+	  						<th>Registration Deadline</th>
+	  						<th>Start Date</th>
+						</tr>
+					</thead>
+					<tbody>
+						{% for tourney in tourneys %}
+							<tr class="striped">
+							  <td>
+								  <a class="tourney_link" href="tourney/{{tourney.slug}}">
+								  	{{ tourney.name }}
+								  </a>
+							  </td class="striped">
+							  <td class="text_center">{{ tourney.get_format_display }}</td> 
+							  <td class="text_center">{{ tourney.get_type_display }}</td>
+							  <td class="text_center">{{ tourney.max_decks_per_player }}</td>
+							  <td class="text_center">{% if tourney.registration_deadline|has_passed %}{{tourney.registration_deadline|date:"F dS"}} at {{ tourney.registration_deadline|time:"P" }}{% else %}Closed{% endif %}</td>
+							  <td class="text_center">{{tourney.start_date|date:"F dS"}} at {{ tourney.start_date|time:"P" }}</td>
+							</tr>
+						{% endfor %}
+					</tbody>
+				</table>
+			{% else %}
+				<p>No tournaments right now, check back soon!</p>
+			{% endif %}
+		</div>
+		
+		<div id="decks" class="boxed">
+			<h3>Top Decks</h3>
+			<p><a href="/deck/">View All Decks / Upload New Deck</a></p>
+			{% if decks %}
+				<div class="scroll_container">
+					<table class="sorted_table">
+						<thead> 
+							<tr>
+								<th>Deck</th>
+								<th>Planeswalker</th>
+								<th>Format</th> 
+								<th>Type</th>
+								<th>Game Wins</th>
+								<th>Match Wins</th>
+								<th>Win Rate</th>
+								<th>Tourney Wins</th>
+							</tr>
+						</thead>
+						<tbody>
+							{% for deck in decks %}
+								<tr class="striped">
+								  <td><a href="/deck/{{deck.slug}}/">{{ deck.name }}</a></td>
+								  <td class="text_center"><a href="/user/{{deck.user.username}}/">{{ deck.user }}</a></td>
+								  <td class="text_center">{{ deck.get_format_display }}</td> 
+								  <td class="text_center">{{ deck.get_type_display }}</td>
+								  <td class="text_center">{{ deck.game_wins }}</td>
+								  <td class="text_center">{{ deck.match_wins}}</td>
+								  <td class="text_center">{{ deck.win_rate}}%</td>
+								  <td class="text_center">{{ deck.tourney_wins }}</td>
+								</tr>
+							{% endfor %}
+						</tbody>
+					</table>
+				</div>
+			{% else %}
+				<p>No decks yet.</p>
+			{% endif %}
+		</div>
+		
+		<div id="planeswalkers" class="boxed">
+			<h3>Planeswalkers</h3>
+			<table class="sorted_table">
+				<thead>
+					<tr>
+						<th>Planeswalker</th>
+						<th>Decks</th>
+						<th>Game Wins</th>
+						<th>Match Wins</th>
+						<th>Win Rate</th>
+						<th>Tourney Wins</th>
+					</tr>
+				</thead>
+				<tbody>
+					{% for user in users %}
+						<tr class="striped">
+						  <td><a href="user/{{user.username}}">{{ user.username }}</a></td>
+						  <td class="text_center">{{ user|deck_count }}</td> 
+						  <td class="text_center">{{ user|stat:'game_wins' }}</td> 
+						  <td class="text_center">{{ user|stat:'match_wins' }}</td>
+						  <td class="text_center">{{ user|win_rate }}%</td>
+						  <td class="text_center">{{ user|stat:'tourney_wins' }}</td>
+						</tr>
+					{% endfor %}
+				</tbody>
+			</table>
+		</div>
+		
+		<div id="past_tourneys" class="boxed">
+			<h3>Past Tournaments</h3>
+			<p><a href="/past-tourneys/">View All</a></p>
+			{% if past_tourneys %}
+				<table class="sorted_table">
+					<thead>
+						<tr>
+	  						<th>Tournament</th>
+	  						<th>Format</th> 
+	  						<th>Type</th>
+	  						<th>Winning Deck</th>
+	  						<th>Winner</th>
+	  						<th>Finish Date</th>
+						</tr>
+					</thead>
+					<tbody>
+						{% for tourney in past_tourneys %}
+							<tr class="striped">
+							  <td>
+								  <a href="/tourney/{{tourney.slug}}">
+								  	{{ tourney.name }}
+								  </a>
+							  </td>
+							  <td class="text_center">{{ tourney.get_format_display }}</td> 
+							  <td class="text_center">{{ tourney.get_type_display }}</td>
+							  <td class="text_center">
+							  	  {% if tourney.winning_deck.all|length > 1 %}
+							  	  		Multiple 
+							  	  {% else %}
+									  {% for wd in tourney.winning_deck.all %}
+									  		<a href="/deck/{{wd.slug}}/">{{ wd }}</a>
+									  {% endfor %}
+								  {% endif %}
+							  </td>
+							  <td class="text_center"><a href="/user/{{tourney.winner.username}}/">{{ tourney.winner }}</a></td>
+							  <td class="text_center">{{tourney.finished_date|date:"F dS, Y"}}</td>
+							</tr>
+						{% endfor %}
+					</tbody>
+				</table>
+			{% else %}
+				<p>No past tournaments yet.</p>
+			{% endif %}	
+		</div>
+		
+	</div>
+{% endblock content %}

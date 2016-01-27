@@ -1,0 +1,673 @@
+/*****GLOBAL STUFF*****/
+html {
+	background: #A2D7C6;
+	/*background: #BDF2DC;*/
+	min-width: 750px;
+}
+
+.boxed {
+	background: white;
+	margin: 10px;
+	padding: 10px;
+	border-radius: 10px;
+	overflow-x: auto;
+}
+
+.scroll_container {
+	overflow-x: auto;
+	overflow-y: hidden;
+}
+
+.text_center {
+	text-align: center;
+}
+
+.left {
+	float: left;	
+}
+.right {
+	float: right;	
+}
+
+.success, .error {
+	margin-left: 20px;	
+}
+
+.success {
+	color: green;	
+}
+
+.error, .errorlist {
+	color: red;	
+}
+
+.sorted_table th:hover {
+	cursor: pointer;
+	color: purple;	
+}
+
+/******FONT STUFF*****/
+em {
+	font-style: italic;
+}
+
+strong {
+	font-weight: bold;	
+}
+
+ol {
+	list-style: outside;
+	list-style-type: decimal;
+}
+
+h1 {
+	font-size: 50px;	
+}
+
+h2 {
+	font-size: 35px;	
+}
+
+h3 {
+	font-size: 28px;	
+}
+
+h4 {
+	font-size: 24px;	
+}
+
+p {
+	font-size: 20px;	
+}
+
+li {
+	font-size: 20px;	
+}
+
+a {
+	text-decoration: none;	
+}
+
+a, a:visited {
+	color: #009;
+	/*color: #600;*/
+}
+
+a:hover {
+	text-decoration: none;
+	color: #DD660E;	
+}
+
+.small_text {
+	font-size: 13px;	
+}
+
+/*****TABLES*****/
+table {
+	width: 100%;
+	margin-top: 10px;
+}
+
+th {
+	font-weight: bold;
+	padding: 0px 10px 5px 10px;
+	min-width: 75px;
+}
+
+.striped:nth-child(odd){
+	background: #FEEEB8
+}
+
+	.striped td {
+		padding: 3px 0px 3px 0px;	
+	}
+
+	.striped td:first-child {
+		padding: 2px 0px 2px 5px;	
+	}
+	
+/*****HEADER*****/
+#header {
+	margin: 20px;
+}
+
+#banner {
+	max-width: 1295px;
+	min-width: 1140px;
+	width: 85%;
+	margin: 0px auto;
+}
+
+#logo {
+	float:left;	
+}
+
+#head {
+	margin-top: 40px;
+	float: left;	
+}
+#subhead {
+	margin-top: 20px;
+	float: right;	
+}
+
+#not_logged_in {
+	position: relative;
+	height: 500px;
+	background: #FEEEB8;
+}
+
+#not_logged_in > p {
+	height: 25px;
+	position: absolute;
+	top: 50%;
+	margin-top: -13px;
+	width: 95%;
+	text-align: center;	
+}
+
+/*****NAV BAR*****/
+#nav_bar {
+	margin: 10px 10px 0px 10px;
+	border-radius: 10px;
+	background: white;
+	padding: 20px;
+}
+
+#nav_bar ul {
+	display: inline;
+}
+
+#nav_bar li {
+	display: inline;
+	padding: 20px;
+}
+
+#nav_bar li:hover {
+	cursor: pointer;
+}
+
+#logout {
+	display: block;
+	text-align: right;
+	margin-right: 10px;
+}
+
+/*****HOMEPAGE*****/
+#main_col {
+	width: 60%;
+	float: left;
+}
+
+#sidebar {
+	width: 40%;	
+	float: right;
+}
+
+#sidebar .boxed {
+	margin-left: 0px;	
+}
+
+#my_account {
+	text-align: center;
+	background: white;
+}
+
+#my_account:hover {
+	
+}
+
+/*****LOGIN PAGE*****/
+#login_form {
+	
+}
+
+#login_table {
+	width: 300px;
+}
+
+/*****TOURNAMENT REGISTRATION VIEW*****/
+#registration > p:nth-child(2) {
+	margin: 10px 0px;	
+}
+
+#registration > h4 {
+	margin-top: 10px;	
+}
+
+#registration > form {
+	margin-top: 5px;
+	margin-left: 20px;	
+}
+
+#registration ul {
+	margin-left: 20px;
+	list-style-position: inside;
+	list-style-type: circle;
+}
+
+#registration li {
+	margin: 2px 0px;	
+}
+
+#registration li * {
+	display: inline;	
+}
+	
+/*****TOURNAMENT VIEW*****/
+#tourney h3 {
+	font-size: 40px;
+	margin: 10px;
+}
+	
+#summary p {
+	margin: 10px;	
+}
+
+#winner_box p {
+	margin-left: 10px;	
+}
+
+#key_boxes{
+	margin: 0px auto;
+    text-align: center;
+}
+
+.key_box {
+	margin: 7px;
+	width: 90px;
+	display: inline-block;
+	background: #FFEBB0;
+	border-radius: 10px;
+	border-style: solid;
+	border-width: 2px;
+	border-color: #DD660E;
+}
+
+.key_box:first-child {
+	margin-left: 3px;
+}
+
+.key_box p {
+	font-size: 14px;
+	text-align: center;
+	padding:10px;
+}
+
+#bracket {
+	background: white;
+}
+
+.minwidth { 
+	min-width:3000px; 
+	width: auto !important; 
+	width: 3000px
+}
+
+.round {
+	float: left;
+	margin: 10px 7px 10px 7px;
+	background: white;
+    width: 300px;
+}
+	
+.round_id {
+	margin: 10px 0px 1px 10px;	
+}
+
+.elim_id {
+	margin: 0px 0px 0px 10px;
+}
+
+/* Groups Standings */
+.standings {
+	background: #FFEBB0;
+	border: 2px solid #DD660E;
+	padding: 10px;
+	margin: 10px;
+}
+
+.standings > p:first-child{
+	font-weight: bold;
+	text-align: center;
+}
+.standings > table{
+    margin-top: 15px;
+}
+
+.standings > table th {
+    min-width: 0px;
+    padding: 0px;
+}
+
+.standings td,
+.standings th {
+    text-align: center;
+    width: 10%;
+}
+
+.standings td:first-child,
+.standings th:first-child {
+    text-align: left;
+    width: 80%;
+}
+
+.group {
+	border-top: 2px solid #0E4CA8;
+}
+
+.group table {
+    margin: 7px 0px 7px 0px;
+}
+
+.match {
+	margin: 10px;
+	padding: 10px;
+	height: 100px;
+	background: #FFEBB0;
+	border-radius: 10px;
+	border-style: solid;
+	border-width: 2px;
+	border-color: #DD660E;
+	position: relative;
+}
+
+	.first_deck {
+		margin-top: 5px;
+	}
+	
+	.second_deck {
+		margin-top: 15px;
+	}
+
+	.match .user {
+		font-size: 14px;	
+	}
+	
+	.match .wins {
+		position: absolute;
+		top: 15px;
+		right: 10px; 	
+	}
+	
+	.second_deck .wins {
+		top: 65px;	
+	}
+	
+	/*MATCH CLASSES*/
+	.user_match {
+		background-color: #A2D7C6;
+	}
+	.user_loss {
+		background-color: #D7F7F3;	
+	}
+	.user_win {
+		background-color: #08BFB2;	
+	}
+	.active {
+		border-color: #65AA81;
+		border-width: 5px;
+	}
+	.complete {
+		border-color: #0E4CA8;
+	}
+	.bye {
+		border-style: dotted;	
+	}
+	.selfmatch {
+		border-style: dashed;
+	}
+	.winner_loss {
+		border-color: #E578F9;
+		border-width: 5px;
+	}
+	.winner_win {
+		border-color: #B41CD3;
+		border-width: 5px;
+	}
+
+.who_won_but {
+	background-color: #DD660E;
+    color: white;
+	padding: 4px 12px 6px 12px;
+	border-radius: 5px;
+	text-align: center;
+	position: absolute;
+	right: 5px;
+	top: 85px;
+}
+
+.who_won_but:hover {
+	cursor: pointer;
+    background-color: #0E4CA8;
+}
+
+	.who_won_form {
+		position: fixed;
+		top: 50%;
+		left: 50%;
+		margin-top: -200px;
+		margin-left: -150px;
+		background: #a2d7c7;
+		width: 450px;
+		height: 250px;
+		padding: 10px;
+		border: 3px solid #014586;
+		border-radius: 10px;
+		text-align: center;
+		z-index: 999;
+	}
+	
+	.who_won_form h4 {
+		font-size: 26px;
+		font-weight: 700;	
+	}
+	
+	.who_won_form h5 {
+		font-size: 20px;
+		margin-top: 10px;	
+	}
+	
+		.who_won_form .form_wrapper {
+			margin-top: 30px;
+			text-align: center;
+		}
+		
+		.who_won_form .form_wrapper input {
+			width: 15px;
+			text-align: center;
+		}
+		
+		.who_won_form .form_wrapper label:nth-child(5),
+		.who_won_form .form_wrapper label:nth-child(2) {
+			width: 275px;
+		}
+		
+		.who_won_form .form_wrapper label:nth-child(2) {
+			margin-top: 4px;	
+		}
+		
+		.who_won_form .form_wrapper label:nth-child(5) {
+			clear: both;
+			margin-top: 12px;
+		}
+		
+		.who_won_form .form_wrapper #second_deck_wins {
+			margin-top: 7px;	
+		}
+		
+		.selfmatch_text {
+			font-size: 12px;
+			text-align: left;	
+		}
+		
+		.group_notice {
+			color: red;	
+		}
+		
+		.who_won_form .form_wrapper input[type=submit] {
+			background: #dd650e;
+			color: white;
+			font-size: 15px;
+			width: 100px;
+			padding: 8px 14px;
+			border-radius: 5px;
+			text-align: center;
+			position: relative;
+			top: 30px;
+			left: 160px;
+			clear: both;
+		}
+	
+		.who_won_hide_but {
+			background: blue;
+			width: 100px;
+			padding: 5px;
+			border-radius: 5px;
+			text-align: center;
+			position: absolute;
+			right: 10px;
+			top: 230px;
+		}
+		
+		.who_won_hide_but:hover {
+			background: teal;
+			cursor: pointer;
+		}
+		
+/*****ALL DECKS VIEW*****/
+
+/*****DECK DETAIL VIEW*****/
+.bumpin {
+	margin-left: 20px;	
+}
+
+#deck_list ul {
+	float: left;
+	margin-right: 20px;
+}
+
+#cardImageHolder {
+	float: right;	
+}
+
+#deck_editor > p {
+    margin: 5px 0px 15px 0px;
+}
+
+/*****FORMS*****/
+form p {
+    padding: 8px 0px 8px 0px;
+    overflow: hidden;
+}
+
+form td {
+    padding: 8px 0px 8px 0px;
+}
+
+label {
+    padding-right: 10px;
+    text-align: right;
+    width: 125px;
+    float: left;
+}
+
+input,
+select,
+textarea{
+    box-sizing: content-box;
+    padding: 5px;
+    width: 300px;
+    border: 1px solid #DD660E;
+    background-color: #fffae7;
+    float: left;
+}
+
+form span {
+    font-size: .75em;
+    font-style: italic;
+    display: block;
+    overflow: hidden;
+    padding-left: 10px;
+    margin: 3px 0px 0px 0px;
+    line-height: 1.1em;
+}
+
+/*submit buttons*/
+form > input:last-child {
+    width: 100px;
+}
+
+/*deck editor/uploader stuff */
+    /*put decklist label at top of text area*/
+    #deck_editor p:nth-child(6) label,
+    #add_new_deck p:nth-child(6) label {
+        vertical-align: top;
+    }
+
+    /* is active checkbox stuff */
+    #id_is_active {
+        margin: 5px 0px 0px 0px;
+        width: 13px !important;
+}
+
+/*registration specific stuff */
+    #registration form input:last-child,
+    #registration form select,
+    #registration form p {
+        display: inline-block;
+        float: none;
+        overflow: visible;
+    }
+
+    #registration form input:last-child {
+        margin-left: 20px;
+    }
+		
+/*****FLATPAGES*****/
+.flatpage h4 {
+	margin-top: 25px;
+	margin-bottom: 5px;
+	text-decoration: underline;	
+}
+
+	.flatpage h4:nth-child(2), .flatpage p:nth-child(2) {
+		margin-top: 10px;	
+	}
+
+.flatpage p {
+	margin-bottom: 10px;	
+}
+
+.flatpage ul, ol {
+	margin-left: 20px;
+	margin-bottom: 10px;
+}
+
+.flatpage ol {
+	padding-left: 20px;
+}
+
+.flatpage li {
+	margin: 5px;
+}
+
+.flatpage .decklist {
+	border: 1px solid black;
+	border-radius: 10px;
+	padding: 10px;
+	width: 400px;
+	margin-bottom: 20px;	
+}
+
+.flatpage .decklist li {
+	font-family: "Lucida Console", Monaco, monospace;
+	font-size: 12px;
+}
+
+
+
+
+
+
+

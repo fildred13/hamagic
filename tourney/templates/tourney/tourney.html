@@ -1,0 +1,462 @@
+{% extends "base.html" %}
+
+{% load tourney_tags %}
+{% load staticfiles %}
+
+{% block page_specific_css %}
+		<link rel="stylesheet" type="text/css" href="{% static 'styles/jquery.mCustomScrollbar.css' %}" />
+{% endblock page_specific_css %}
+
+{% block content %}
+	<div id="tourney">
+		<div id="summary" class="boxed">
+			<h3>{{ tourney.name }}</h3>
+			<p id="summary">{{ tourney.name }} is a {{ tourney.get_format_display }} {{ tourney.get_type_display }} tournament.
+			{% if tourney.packs != 'Unlimited' %}Packs/Block: {{ tourney.packs }}.{% endif %}
+			Each player is allowed, at most, {{tourney.max_decks_per_player}} deck{% if tourney.max_decks_per_player != 1 %}s{% endif %}.  
+			{% if tourney.qr_bracket != tourney.bracket or tourney.qr_elimination != tourney.elimination or tourney.qr_bracket == "ROUND_ROBIN" %}The qualifying round matches are in a {{tourney.get_qr_bracket_display|lower}} elimination bracket, with {{tourney.get_qr_elimination_display|lower}} {% if tourney.qr_elimination == 'SINGLE' %}game{% else %}games{% endif %} elimination.{% endif %}
+			{% if tourney.qr_bracket == "ROUND_ROBIN" %}There will be {{num_qr_groups}} group{% if num_qr_groups > 1 %}s{% endif %} in the qualifying round, with the top {{tourney.qr_rr_num_advance}} deck{% if tourney.qr_rr_num_advance > 1 %}s{% endif %} from {% if num_qr_groups > 1 %}each{% else %}that{% endif %} group advancing to the next round.{% endif %}  
+			The standard matches are in a {{tourney.get_bracket_display|lower}} bracket, with {{tourney.get_elimination_display|lower}} {% if tourney.elimination == 'SINGLE' %}game{% else %}games{% endif %} elimination.
+			{% if tourney.bracket == "ROUND_ROBIN" %}There will be {{num_groups}} group{% if num_groups > 1 %}s{% endif %} in the second round, with the top {{tourney.rr_num_advance}} deck{% if tourney.rr_num_advance > 1 %}s{% endif %} from {% if num_groups > 1 %}each{% else %}that{% endif %} group advancing to the next round.  Remaining rounds are single match elimination.{% endif %}   
+			{% if tourney.elimination != tourney.semi_elimination %}The semifinals are {{tourney.get_semi_elimination_display|lower}} {% if tourney.semi_elimination == 'SINGLE' %}game{% else %}games{% endif %} elimination.{% endif %}
+			{% if tourney.elimination != tourney.final_elimination %}The finals are {{tourney.get_final_elimination_display|lower}} {% if tourney.final_elimination == 'SINGLE' %}game{% else %}games{% endif %} elimination.{% endif %}</p>
+		</div>
+		{% if messages %}
+			{% for message in messages %}
+				<p{% if message.tags %} class="{{ message.tags }}"{% endif %}>{{ message }}</p>
+			{% endfor %}
+		{% endif %}
+		
+		{% if tourney.is_finished %}
+			<div id="winner_box" class="boxed">
+				<p>This tourney is over.  The winner was {{ tourney.winner }} with {{ tourney.winning_deck.get }}!</p>
+			</div>
+		{% endif %}
+		
+		{% if tourney_status = 'registration' %}
+			{% if logged_in == True %}
+			<div id="registration" class="boxed">
+				<p>Registration for {{tourney.name}} is open! The registration deadline is {{tourney.registration_deadline|date:"l, F dS"}} at {{ tourney.registration_deadline|time:"P" }} and it begins {{tourney.start_date|date:"l, F dS"}} at {{ tourney.start_date|time:"P" }}.</p>
+				{% if user_decks_entered < tourney.max_decks_per_player %}
+					<p>You may register {{ decks_remaining }} more decks in this tournament.</p>
+					<p>Register your decks below:</p>
+					<form action="/tourney/{{tourney.slug}}/" method="post">{% csrf_token %}
+						{{ form.as_p }}
+						<input type="submit" value="Register Deck" />
+					</form>
+				{% else %}
+					<p>You have already entered the maximum number of decks for this tournament.</p>
+				{% endif %}
+			{% else %}
+			<div id="registration" class="boxed">
+				<p>Registration for {{tourney.name}} is open! The registration deadline is {{tourney.registration_deadline|date:"l, F dS"}} at {{ tourney.registration_deadline|time:"P" }} and it begins {{tourney.start_date|date:"l, F dS"}} at {{ tourney.start_date|time:"P" }}. <a href="/login/">Login</a> to register your decks.
+			{% endif %}
+			{% if tourney.decks %}
+				<h4>Decks Entered:</h4>
+					<ul>
+						{% for d in tourney.decks.all %}
+							<li>
+								<a href="/deck/{{d.slug}}/">{{d.name}}</a> - {{d.user.username}}
+								{% if d.user == user %}
+									<form action="/tourney/{{tourney.slug}}/" method="post">{% csrf_token %}
+										<input type="hidden" name="deck" value="{{ d }}" />
+										<input type="submit" name="unregister" value="Unregister" />
+									</form>
+								{% endif %}
+							</li>
+						{% endfor %}
+					</ul>
+			{% endif %}
+			</div>
+		{% endif %}
+		
+		{% if tourney_status = 'pending' %}
+			<div id="registration_ended" class="boxed">
+				<p>Registration for this tournament has ended.  The tournament will begin {{ tourney.start_date }}.</p>
+				<h4>Decks Entered:</h4>
+				<ul>
+					{% for d in tourney.decks.all %}
+						<li><a href="/deck/{{d.slug}}/">{{d.name}}</a> - {{d.user.username}}</li>
+					{% endfor %}
+				</ul>
+			</div>
+		{% endif %}
+		
+		{% if tourney.has_started %}
+			<div id="key" class="boxed">
+				<div class="scroll_container">
+					<div id="key_boxes">
+						<div class="key_box"><p>Regular</p></div>
+						<div class="key_box active"><p>Active</p></div>
+						<div class="key_box complete"><p>Complete</p></div>
+						<div class="key_box user_match"><p>User Match</p></div>
+						<div class="key_box user_loss"><p>User Loss</p></div>
+						<div class="key_box user_win"><p>User Win</p></div>
+						<div class="key_box bye"><p>Bye</p></div>
+						<div class="key_box selfmatch"><p>Self-match</p></div>
+						<div class="key_box winner_win"><p>Winner Win</p></div>
+						<div class="key_box winner_loss"><p>Winner Loss</p></div>
+					</div>
+				</div>
+			</div>
+			
+			<div id="bracket" class="bracket boxed">
+				<div class="minwidth">
+					{% if tourney.bracket == "DOUBLE" %}
+						<h4>Winner's Bracket</h4>
+					{% endif %}
+					{% for round in rounds %}
+						<div id="round_{{forloop.counter}}" class="round">
+							{% with round|first as r %}
+								{% if r.is_semi %}
+									<p class="round_id">Semifinal Round</p>
+								{% elif r.is_final %}
+									<p class="round_id">Final Round</p>
+								{% else %}
+									<p class="round_id">Round {{forloop.counter}}</p>
+								{% endif %}
+							
+								{% if r.is_qualifier %}
+									<p class="elim_id">{{tourney.get_qr_elimination_display}} Elimination</p>
+								{% elif r.is_semi %}
+									<p class="elim_id">{{tourney.get_semi_elimination_display}} Elimination</p>
+								{% elif r.is_final %}
+									<p class="elim_id">{{tourney.get_final_elimination_display}} Elimination</p>
+								{% else %}
+									<p class="elim_id">{{tourney.get_elimination_display}} Elimination</p>
+								{% endif %}
+								
+								{% if tourney.qr_bracket == 'ROUND_ROBIN' and r.is_qualifier %}
+									<div class="standings">
+										<p>Group Standings</p>
+                                        <table>
+                                            <tr>
+                                                <th>Deck</th>
+                                                <th class="th_right">P</th>
+                                                <th class="th_right">M</th>
+                                            </tr>
+                                        </table>
+										{% for group in qr_stats %}
+											<div class="group">
+												<table>
+													{% for d in group %}
+														<tr>
+															{% for s in d %}
+																<td>
+																	{% if s.slug %}<a href="/deck/{{s.slug}}/">{{s.name}}</a>{% else %}{{ s }}{% endif %}
+																</td>
+															{% endfor %}
+														</tr>
+													{% endfor %}
+												</table>
+											</div>
+										{% endfor %}
+									</div> 
+								{% endif %}
+							{% endwith %}
+							
+							{% if tourney.bracket == 'ROUND_ROBIN' and forloop.counter == 2 %}
+								<div class="standings">
+									<p>Group Standings</p>
+                                    <table>
+                                        <tr>
+                                            <th>Deck</th>
+                                            <th class="th_right">P</th>
+                                            <th class="th_right">M</th>
+                                        </tr>
+                                    </table>
+									{% for group in r2_stats %}
+										<div class="group">
+											<table>
+												{% for d in group %}
+													<tr>
+														{% for s in d %}
+															<td>
+																{% if s.slug %}<a href="/deck/{{s.slug}}/">{{s.name}}</a>{% else %}{{ s }}{% endif %}
+															</td>
+														{% endfor %}
+													</tr>
+												{% endfor %}
+											</table>
+										</div>
+									{% endfor %}
+								</div> 
+							{% endif %}
+							
+							{% for m in round %}
+								<div class="match{% if m.is_active%} active{% endif %}
+									{% if m.is_complete%} complete{% endif %}
+									{% if m.first_deck.user == user or m.second_deck.user == user %} user_match{% endif %}
+									{% if m.first_deck_wins < m.second_deck_wins and m.first_deck.user == user %} user_loss{% endif %}
+									{% if m.first_deck_wins > m.second_deck_wins and m.second_deck.user == user %} user_loss{% endif %}
+									{% if m.first_deck_wins > m.second_deck_wins and m.first_deck.user == user %} user_win{% endif %}
+									{% if m.first_deck_wins < m.second_deck_wins and m.second_deck.user == user %} user_win{% endif %}
+									{% if m.first_deck.user == user and m.is_bye %} user_win{% endif %}
+									{% if m.is_bye%} bye{% endif %}
+									{% if m.first_deck.user == m.second_deck.user and m.first_deck.user != None %} selfmatch{% endif %}
+									{% if tourney.winner %}
+										{% if m.first_deck_wins < m.second_deck_wins and m.first_deck == tourney.winning_deck.get %} winner_loss{% endif %}
+										{% if m.first_deck_wins > m.second_deck_wins and m.second_deck == tourney.winning_deck.get %} winner_loss{% endif %}
+										{% if m.first_deck_wins > m.second_deck_wins and m.first_deck == tourney.winning_deck.get %} winner_win{% endif %}
+										{% if m.first_deck_wins < m.second_deck_wins and m.second_deck == tourney.winning_deck.get %} winner_win{% endif %}
+										{% if m.first_deck_wins == m.second_deck_wins and m.first_deck == tourney.winning_deck.get %} winner_win{% endif %}
+									{% endif %}">
+									<div class="first_deck">
+										{% if m.first_deck.name %}
+											<p><a href="/deck/{{m.first_deck.slug}}/">{{m.first_deck.name}}</a></p>
+											<p class="user"><a href="/user/{{m.first_deck.user.username}}/">{{m.first_deck.user.username}}</a></p>
+											{% if m.is_complete == True and m.is_bye == False %}
+												<p class="wins">{{ m.first_deck_wins }}</p>
+											{% endif %}
+										{% elif m.is_bye %}
+											<p>BYE</p>
+										{% else %}
+											<p>TBD</p>
+										{% endif %}
+									</div>
+									<div class="second_deck">
+										{% if m.second_deck.name %}
+											<p><a href="/deck/{{m.second_deck.slug}}/">{{m.second_deck.name}}</a></p>
+											<p class="user"><a href="/user/{{m.second_deck.user.username}}/">{{m.second_deck.user.username}}</a></p>
+											{% if m.is_complete == True and m.is_bye == False %}
+												<p class="wins">{{ m.second_deck_wins }}</p>
+											{% endif %}
+										{% elif m.is_bye %}
+											<p>BYE</p>
+										{% else %}
+											<p>TBD</p>
+										{% endif %}
+									</div>
+									{% if m.is_active %}
+										{% if m.first_deck.user == user or m.second_deck.user == user %}
+											<div class="who_won_but">
+												<p>Enter Results</p>
+											</div>
+											<div class="who_won_form">
+												<h4>{{ tourney.name }}</h4>
+												<h5>{{ m.first_deck.name }} vs {{ m.second_deck.name }}</h5>
+												{% if m.first_deck.user == m.second_deck.user %}
+													<p class="selfmatch_text">This is a self-match.  Assign wins as you choose and the "winner" will advance normally.  No stats are tracked. See "self-matches" on the <a href="/rules/">rules</a> page for full explanation</p>
+													{% if m.group > 0 %}
+														<p class="selfmatch_text group_notice">IMPORTANT: Since this is a round robin match, the "wins" matter for the purposes of group placing, so choose wisely.  Again, see the <a href="/rules/">rules.</a></p>
+													{% endif %}
+												{% endif %}
+												<div class="form_wrapper">
+													<form action="/tourney/{{tourney.slug}}/submit/" method="post">
+														{% csrf_token %}
+														<label for="first_deck_wins">{{m.first_deck.name}} wins:</label>
+														<input type="text" name="first_deck_wins" id="first_deck_wins" value="0"><br/>
+			        									<label for="second_deck_wins">{{m.second_deck.name}} wins:</label>
+			        									<input type="text" name="second_deck_wins" id="second_deck_wins" value="0">
+			        									<input type="hidden" name="match_id" value="{{m.id}}">
+			        									<input type="submit" value="Submit Results">
+			    									</form>
+		    									</div>
+												<div class="who_won_hide_but">
+													<p>X</p>
+												</div>
+											</div>
+										{% endif %}
+									{% endif %}
+								</div>
+							{% endfor %}<!-- end MATCH forloop -->
+						</div>
+					{% endfor %}<!-- end ROUND forloop -->
+						
+						{% if finals_match %}
+							<div id="round_final" class="round">
+								<p class="round_id">Final Round</p>
+								<p class="elim_id">{{tourney.get_final_elimination_display}} Elimination</p>
+								<div class="match{% if finals_match.is_active%} active{% endif %}
+									{% if finals_match.is_complete%} complete{% endif %}
+									{% if finals_match.first_deck.user == user or finals_match.second_deck.user == user %} user_match{% endif %}
+									{% if finals_match.first_deck_wins < finals_match.second_deck_wins and finals_match.first_deck.user == user %} user_loss{% endif %}
+									{% if finals_match.first_deck_wins > finals_match.second_deck_wins and finals_match.second_deck.user == user %} user_loss{% endif %}
+									{% if finals_match.first_deck_wins > finals_match.second_deck_wins and finals_match.first_deck.user == user %} user_win{% endif %}
+									{% if finals_match.first_deck_wins < finals_match.second_deck_wins and finals_match.second_deck.user == user %} user_win{% endif %}
+									{% if finals_match.first_deck.user == user and finals_match.is_bye %} user_win{% endif %}
+									{% if finals_match.is_bye%} bye{% endif %}
+									{% if finals_match.first_deck.user == finals_match.second_deck.user and finals_match.first_deck.user != None %} selfmatch{% endif %}
+									{% if tourney.winner %}
+										{% if finals_match.first_deck_wins < finals_match.second_deck_wins and finals_match.first_deck == tourney.winning_deck.get %} winner_loss{% endif %}
+										{% if finals_match.first_deck_wins > finals_match.second_deck_wins and finals_match.second_deck == tourney.winning_deck.get %} winner_loss{% endif %}
+										{% if finals_match.first_deck_wins > finals_match.second_deck_wins and finals_match.first_deck == tourney.winning_deck.get %} winner_win{% endif %}
+										{% if finals_match.first_deck_wins < finals_match.second_deck_wins and finals_match.second_deck == tourney.winning_deck.get %} winner_win{% endif %}
+									{% endif %}">
+									<div class="first_deck">
+										{% if finals_match.first_deck.name %}
+											<p><a href="/deck/{{finals_match.first_deck.slug}}/">{{finals_match.first_deck.name}}</a></p>
+											<p class="user"><a href="/user/{{finals_match.first_deck.user.username}}/">{{finals_match.first_deck.user.username}}</a></p>
+											{% if finals_match.is_complete == True %}
+												<p class="wins">{{ finals_match.first_deck_wins }}</p>
+											{% endif %}
+										{% else %}
+											<p>TBD</p>
+										{% endif %}
+									</div>
+									<div class="second_deck">
+										{% if finals_match.second_deck.name %}
+											<p><a href="/deck/{{finals_match.second_deck.slug}}/">{{finals_match.second_deck.name}}</a></p>
+											<p class="user"><a href="/user/{{finals_match.second_deck.user.username}}/">{{finals_match.second_deck.user.username}}</a></p>
+											{% if finals_match.is_complete == True %}
+												<p class="wins">{{ finals_match.second_deck_wins }}</p>
+											{% endif %}
+										{% else %}
+											<p>TBD</p>
+										{% endif %}
+									</div>
+									{% if finals_match.is_active %}
+										{% if finals_match.first_deck.user == user or finals_match.second_deck.user == user %}
+											<div class="who_won_but">
+												<p>Enter Results</p>
+											</div>
+											<div class="who_won_form">
+												<h4>{{ tourney.name }}</h4>
+												<h5>{{ finals_match.first_deck.name }} vs {{ finals_match.second_deck.name }}</h5>
+												{% if finals_match.first_deck.user == finals_match.second_deck.user %}
+													<p class="selfmatch_text">This is a self-match.  Assign wins as you choose and the "winner" will win the tournament.  No other stats are tracked. See "self-matches" on the <a href="/rules/">rules</a> page for full explanation</p>
+												{% endif %}
+												<div class="form_wrapper">
+													{% if finals_match.first_deck.user == finals_match.second_deck.user %}
+														<p class="selfmatch_text">This is a self-match.  Assign wins for the deck you would like to have recorded as the tournament victor.  No other stats are tracked for self-matches (so the losing deck won't gain match losses, for example.)</p>
+													{% endif %}
+													<form action="/tourney/{{tourney.slug}}/submit/" method="post">
+														{% csrf_token %}
+														<label for="first_deck_wins">{{finals_match.first_deck.name}} wins:</label>
+														<input type="text" name="first_deck_wins" id="first_deck_wins" value="0"><br/>
+			        									<label for="second_deck_wins">{{finals_match.second_deck.name}} wins:</label>
+			        									<input type="text" name="second_deck_wins" id="second_deck_wins" value="0">
+			        									<input type="hidden" name="match_id" value="{{finals_match.id}}">
+			        									<input type="submit" value="Submit Results">
+			    									</form>
+		    									</div>
+												<div class="who_won_hide_but">
+													<p>Close</p>
+												</div>
+											</div>
+										{% endif %}
+									{% endif %}
+								</div>
+							</div>
+						{% endif %} <!-- End FINALS ROUND section -->
+					
+					<div style="clear:both"></div>
+				</div>
+			</div><!-- end of bracket -->
+			
+			{% if tourney.bracket == "DOUBLE" %}
+				<div id="loser_bracket" class="bracket boxed">
+					<div class="minwidth">
+						<h4>Loser's Bracket</h4>
+							{% for round in loser_rounds %}
+								{% with round|first as r %}
+									{% if r %}
+										<div id="loser_round_{{forloop.counter}}" class="round">
+												{% if r.is_semi %}
+													<p class="round_id">Semifinal Round</p>
+												{% elif r.is_final %}
+													<p class="round_id">Final Round</p>
+												{% else %}
+													<p class="round_id">Round {{forloop.counter}}</p>
+												{% endif %}
+												
+												{% if r.is_qualifier %}
+													<p class="elim_id">{{tourney.get_qr_elimination_display}} Elimination</p>
+												{% elif r.is_semi %}
+													<p class="elim_id">{{tourney.get_semi_elimination_display}} Elimination</p>
+												{% elif r.is_final %}
+													<p class="elim_id">{{tourney.get_final_elimination_display}} Elimination</p>
+												{% else %}
+													<p class="elim_id">{{tourney.get_elimination_display}} Elimination</p>
+												{% endif %}
+											{% for m in round %}
+												<div class="match{% if m.is_active%} active{% endif %}
+													{% if m.is_complete%} complete{% endif %}
+													{% if m.first_deck.user == user or m.second_deck.user == user %} user_match{% endif %}
+													{% if m.first_deck_wins < m.second_deck_wins and m.first_deck.user == user %} user_loss{% endif %}
+													{% if m.first_deck_wins > m.second_deck_wins and m.second_deck.user == user %} user_loss{% endif %}
+													{% if m.first_deck_wins > m.second_deck_wins and m.first_deck.user == user %} user_win{% endif %}
+													{% if m.first_deck_wins < m.second_deck_wins and m.second_deck.user == user %} user_win{% endif %}
+													{% if m.first_deck.user == user and m.is_bye %} user_win{% endif %}
+													{% if m.is_bye%} bye{% endif %}
+													{% if m.first_deck.user == m.second_deck.user and m.first_deck.user != None %} selfmatch{% endif %}
+													{% if tourney.winner %}
+														{% if m.first_deck_wins < m.second_deck_wins and m.first_deck == tourney.winning_deck.get %} winner_loss{% endif %}
+														{% if m.first_deck_wins > m.second_deck_wins and m.second_deck == tourney.winning_deck.get %} winner_loss{% endif %}
+														{% if m.first_deck_wins > m.second_deck_wins and m.first_deck == tourney.winning_deck.get %} winner_win{% endif %}
+														{% if m.first_deck_wins < m.second_deck_wins and m.second_deck == tourney.winning_deck.get %} winner_win{% endif %}
+														{% if m.first_deck_wins == m.second_deck_wins and m.first_deck == tourney.winning_deck.get %} winner_win{% endif %}
+													{% endif %}">
+													<div class="first_deck">
+														{% if m.first_deck.name %}
+															<p><a href="/deck/{{m.first_deck.slug}}/">{{m.first_deck.name}}</a></p>
+															<p class="user"><a href="/user/{{m.first_deck.user.username}}/">{{m.first_deck.user.username}}</a></p>
+															{% if m.is_complete == True and m.is_bye == False %}
+																<p class="wins">{{ m.first_deck_wins }}</p>
+															{% endif %}
+														{% elif m.is_bye %}
+															<p>BYE</p>
+														{% else %}
+															<p>TBD</p>
+														{% endif %}
+													</div>
+													<div class="second_deck">
+														{% if m.second_deck.name %}
+															<p><a href="/deck/{{m.second_deck.slug}}/">{{m.second_deck.name}}</a></p>
+															<p class="user"><a href="/user/{{m.second_deck.user.username}}/">{{m.second_deck.user.username}}</a></p>
+															{% if m.is_complete == True and m.is_bye == False %}
+																<p class="wins">{{ m.second_deck_wins }}</p>
+															{% endif %}
+														{% elif m.is_bye %}
+															<p>BYE</p>
+														{% else %}
+															<p>TBD</p>
+														{% endif %}
+													</div>
+													{% if m.is_active %}
+														{% if m.first_deck.user == user or m.second_deck.user == user %}
+															<div class="who_won_but">
+																<p>Enter Results</p>
+															</div>
+															<div class="who_won_form">
+																<h4>{{ tourney.name }}</h4>
+																<h5>{{ m.first_deck.name }} vs {{ m.second_deck.name }}</h5>
+																{% if m.first_deck.user == m.second_deck.user %}
+																	<p class="selfmatch_text">This is a self-match.  Assign wins as you choose and the "winner" will advance normally.  No stats are tracked. See "self-matches" on the <a href="/rules/">rules</a> page for full explanation</p>
+																{% endif %}
+																<div class="form_wrapper">
+																	<form action="/tourney/{{tourney.slug}}/submit/" method="post">
+																		{% csrf_token %}
+																		<label for="first_deck_wins">{{m.first_deck.name}} wins:</label>
+																		<input type="text" name="first_deck_wins" id="first_deck_wins" value="0"><br/>
+							        									<label for="second_deck_wins">{{m.second_deck.name}} wins:</label>
+							        									<input type="text" name="second_deck_wins" id="second_deck_wins" value="0">
+							        									<input type="hidden" name="match_id" value="{{m.id}}">
+							        									<input type="submit" value="Submit Results">
+							    									</form>
+						    									</div>
+																<div class="who_won_hide_but">
+																	<p>Close</p>
+																</div>
+															</div>
+														{% endif %}
+													{% endif %}
+												</div>
+											{% endfor %}
+										</div>
+									{% endif %}
+								{% endwith %}
+							{% endfor %} <!-- end ROUND forloop -->
+						<div style="clear:both"></div>
+					</div>
+				</div> <!-- end loser's bracket -->
+			{% endif %}
+			
+		{% endif %}	
+	</div>
+{% endblock content %}
+
+{% block page_specific_js %}
+	<script src="{% static 'source/tourney.js' %}"></script>
+	<script src="{% static 'source/jquery.mCustomScrollbar.concat.min.js' %}"></script>	
+{% endblock page_specific_js %}

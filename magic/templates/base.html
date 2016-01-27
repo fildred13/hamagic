@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html land="en">
+<head>
+	{% load staticfiles %}
+	
+	<link rel="stylesheet" type="text/css" href="{% static 'styles/base.css' %}" />
+	<link rel="stylesheet" type="text/css" href="{% static 'styles/style.css' %}" />
+	<link rel="stylesheet" type="text/css" media="screen and (max-width: 1190px)" href="/static/styles/narrower_header.css">
+	<link rel="stylesheet" type="text/css" media="screen and (max-width: 1035px)" href="/static/styles/narrower_nav.css">
+	{% block page_specific_css %}
+		<!--No page-specific css-->
+	{% endblock page_specific_css %}
+
+    <link rel="shortcut icon" href="{% static 'images/favicon.png' %}" type="image/icon">
+    <link rel="icon" href="{% static 'images/favicon.png' %}" type="image/icon">
+	
+	<title>{% block title %}Hardly Amateur Magic{% endblock title %}</title>
+</head>
+
+<body>
+	<div id="header">
+	{% block header %}
+		<a href="/"><div id="banner">
+			<div id="logo"><img src="{% static 'images/ham.jpg' %}" height="185px" width="142px"/></div>
+			<div id="head"><img src="{% static 'images/title.jpg' %}" height="56px" width="919px"/></div>
+			<div id="subhead"><img src="{% static 'images/subhead.jpg' %}" height="33px" width="405px"/></div>
+			<div style="clear:both"></div>
+		</div></A>
+	{% endblock header %}
+	</div>
+
+    {% if user.username %}
+		<div id="logout">
+			<p>Welcome, {{user.username}}. <a href="/logout">Logout</a></p>
+		</div>
+	{% else %}
+		<div id="logout">
+			<p><a href="/login/?next={{request.path}}">Login</a></p>
+		</div>
+    {% endif %}
+
+	<div id="nav_bar">
+		<ul>
+			<a href="/"><li>Home</li></a>
+			<a href="/rules/"><li>Rules</li></a>
+			<a href="/formats-types/"><li>Formats & Types</li></a>
+			<a href="/decklists/"><li>Decklist Help</li></a>
+			<a href="/deck/"><li>Decks/Uploader</li></a>
+		</ul>
+	</div>
+	
+	<div id="content">
+	{% block content %}
+		<p>Oops, something went wrong :(</p>
+	{% endblock content %}
+	</div>
+
+<script src="{% static 'source/jquery.min.js' %}"></script>
+<script src="{% static 'source/jquery.tablesorter.min.js' %}"></script>
+<script src="{% static 'source/base.js' %}"></script> 		
+{% block page_specific_js %}
+	<!--No page-specific js-->
+{% endblock page_specific_js %}
+
+</body>
+
+</html>

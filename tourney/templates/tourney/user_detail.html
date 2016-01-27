@@ -1,0 +1,173 @@
+{% extends "base.html" %}
+
+{% load deck_tags %}
+
+{% block content %}
+	<div id="user_detail" class="boxed">
+		<h3>{{user.username}}</h3>
+		<p>{{user.first_name}} {{user.last_name}}</p>
+		{% if user.email %}
+			<p>{{user.email}}</p>
+		{% endif %}
+		<div class="scroll_container">
+			<table>
+				<thead>
+					<tr>
+						<th>Game Wins</th>
+						<th>Game Losses</th>
+						<th>Match Wins</th>
+						<th>Match Losses</th>
+						<th>Win Rate</th>
+						<th>Tourney Wins</th>
+						<th>Tourney Losses</th>
+					</tr>
+				</thead>
+				<tbody>
+					<tr>
+					  <td class="text_center">{{ user|stat:'game_wins' }}</td> 
+					  <td class="text_center">{{ user|stat:'game_losses' }}</td> 
+					  <td class="text_center">{{ user|stat:'match_wins' }}</td>
+					  <td class="text_center">{{ user|stat:'match_losses' }}</td> 
+					  <td class="text_center">{{ user|win_rate }}%</td>
+					  <td class="text_center">{{ user|stat:'tourney_wins' }}</td>
+					  <td class="text_center">{{ user|stat:'tourney_losses' }}</td>
+					</tr>
+				</tbody>
+			</table>
+		</div>
+	</div>
+	
+	<div id="decks" class="boxed">
+			<h3>Active Decks</h3>
+			{% if decks %}
+				<div class="scroll_container">
+					<table class="sorted_table">
+						<thead>
+							<tr>
+								<th>Deck</th>
+								<th>Format</th> 
+								<th>Type</th>
+								<th>Game Wins</th>
+								<th>Game Losses</th>
+								<th>Match Wins</th>
+								<th>Match Losses</th>
+								<th>Win Rate</th>
+								<th>Tourney Wins</th>
+								<th>Tourney Losses</th>
+								<th>Tourney Bow Outs</th>
+							</tr>
+						</thead>
+						<tbody>
+							{% for deck in decks %}
+								<tr class="striped">
+								  <td><a href="/deck/{{deck.slug}}/">{{ deck.name }}</a></td>
+								  <td class="text_center">{{ deck.get_format_display }}</td> 
+								  <td class="text_center">{{ deck.get_type_display }}</td>
+								  <td class="text_center">{{ deck.game_wins }}</td>
+								  <td class="text_center">{{ deck.game_losses }}</td>
+								  <td class="text_center">{{ deck.match_wins}}</td>
+								  <td class="text_center">{{ deck.match_losses }}</td>
+								  <td class="text_center">{{ deck.win_rate}}%</td>
+								  <td class="text_center">{{ deck.tourney_wins }}</td>
+								  <td class="text_center">{{ deck.tourney_losses }}</td>
+								  <td class="text_center">{{ deck.tourney_bow_outs }}</td>
+								</tr>
+							{% endfor %}
+						</tobdy>
+					</table>
+				</div>
+			{% else %}
+				<p>No decks yet.</p>
+			{% endif %}
+		</div>
+		
+		<div id="user_tourneys" class="boxed">
+			<h3>Tournament Victories</h3>
+			{% if user_tourney_wins %}
+				<div class="scroll_container">
+					<table class="sorted_table">
+						<thead>
+							<tr>
+								<th>Tournament</th>
+								<th>Format</th> 
+								<th>Type</th>
+								<th>Deck</th>
+								<th>Start Date</th>
+								<th>Finish Date</th>
+							</tr>
+						</thead>
+						<tbody>
+							{% for tourney in user_tourney_wins %}
+								<tr class="striped">
+									<td><a class="tourney_link" href="/tourney/{{tourney.slug}}/">{{ tourney.name }}</a></td>
+									<td class="text_center">{{ tourney.get_format_display }}</td> 
+								  	<td class="text_center">{{ tourney.get_type_display }}</td>
+									<td class="text_center"><a href="/deck/{{tourney.winning_deck.get.slug}}/">{{ tourney.winning_deck.get }}</a></td>
+									<td class="text_center">{{ tourney.start_date }}</td>
+									<td class="text_center">{{ tourney.finished_date }}</td>
+								</tr>
+							{% endfor %}
+						</tbody>
+					</table>
+				</div>
+			{% else %}
+				<p>No wins yet.</p>
+			{% endif %}
+			
+		</div>
+	
+	{% if current_user.username == user.username %}
+		<div id="user_update" class="boxed">
+			<h3>Update</h3>
+			<form action="/user/{{user.username}}/" method="post">{% csrf_token %}
+				{{ form.as_p }}
+				<input type="submit" value="Update" />
+			</form>
+		</div>
+	{% endif %}
+	
+	<div id="inactive_decks" class="boxed">
+			<h3>Inactive Decks</h3>
+			{% if inactive_decks %}
+				<div class="scroll_container">
+					<table class="sorted_table">
+						<thead>
+							<tr>
+								<th>Deck</th>
+								<th>Format</th> 
+								<th>Type</th>
+								<th>Game Wins</th>
+								<th>Game Losses</th>
+								<th>Match Wins</th>
+								<th>Match Losses</th>
+								<th>Win Rate</th>
+								<th>Tourney Wins</th>
+								<th>Tourney Losses</th>
+								<th>Tourney Bow Outs</th>
+							</tr>
+						</thead>
+						<tbody>
+							{% for deck in inactive_decks %}
+								<tr class="striped">
+								  <td><a href="/deck/{{deck.slug}}/">{{ deck.name }}</a></td>
+								  <td class="text_center">{{ deck.get_format_display }}</td> 
+								  <td class="text_center">{{ deck.get_type_display }}</td>
+								  <td class="text_center">{{ deck.game_wins }}</td>
+								  <td class="text_center">{{ deck.game_losses }}</td>
+								  <td class="text_center">{{ deck.match_wins}}</td>
+								  <td class="text_center">{{ deck.match_losses }}</td>
+								  <td class="text_center">{{ deck.win_rate}}%</td>
+								  <td class="text_center">{{ deck.tourney_wins }}</td>
+								  <td class="text_center">{{ deck.tourney_losses }}</td>
+								  <td class="text_center">{{ deck.tourney_bow_outs }}</td>
+								</tr>
+							{% endfor %}
+						</tbody>
+					</table>
+				</div>
+			{% else %}
+				<p>No inactive decks.</p>
+			{% endif %}
+		</div>
+		
+{% endblock content %}

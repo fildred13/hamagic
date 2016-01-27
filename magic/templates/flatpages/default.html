@@ -1,0 +1,14 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+{% if form.errors %}
+<p>Your username and password didn't match. Please try again.</p>
+{% endif %}
+
+<div class="flatpage boxed">
+	<h3>{{ flatpage.title }}</h3>
+	{{ flatpage.content }}
+</div>
+
+{% endblock %}

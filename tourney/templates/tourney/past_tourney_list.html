@@ -1,0 +1,47 @@
+{% extends "base.html" %}
+
+{% block content %}
+	<div class="boxed">
+		<h3>Past Tournaments</h3>
+		{% if object_list %}
+			<table class="sorted_table">
+				<thead>
+					<tr>
+						<th>Tournament</th>
+						<th>Format</th> 
+						<th>Type</th>
+						<th>Winning Deck</th>
+						<th>Winner</th>
+						<th>Finish Date</th>
+					</tr>
+				</thead>
+				<tbody>
+					{% for tourney in object_list %}
+						<tr class="striped">
+						  <td>
+							  <a href="/tourney/{{tourney.slug}}">
+							  	{{ tourney.name }}
+							  </a>
+						  </td>
+						  <td class="text_center">{{ tourney.get_format_display }}</td> 
+						  <td class="text_center">{{ tourney.get_type_display }}</td>
+						  <td class="text_center">
+						  	  {% if tourney.winning_deck.all|length > 1 %}
+						  	  		Multiple 
+						  	  {% else %}
+								  {% for wd in tourney.winning_deck.all %}
+								  		<a href="/deck/{{wd.slug}}/">{{ wd }}</a>
+								  {% endfor %}
+							  {% endif %}
+						  </td>
+						  <td><a href="/user/{{tourney.winner.username}}/">{{ tourney.winner }}</a></td>
+						  <td class="text_center">{{ tourney.finished_date }}</td>
+						</tr>
+					{% endfor %}
+				</tbody>
+			</table>
+		{% else %}
+			<p>No past tournaments yet.</p>
+		{% endif %}
+	</div>
+{% endblock content %}
