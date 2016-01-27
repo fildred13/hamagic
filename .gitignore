@@ -1,3 +1,6 @@
+# Project Ignores
+magic/settings_secret.py
+
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
