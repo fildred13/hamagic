@@ -8,25 +8,33 @@ from django.contrib.auth.models import User
 
 from deck.models import Deck
 
-def id_generator(size=6, chars=string.ascii_uppercase + string.digits):
+def _generate_id(size=6, chars=string.ascii_uppercase + string.digits):
     return ''.join(random.choice(chars) for _ in range(size))
 
-def create_deck(user):
-    name = 'Deck '+id_generator()
+def _create_deck(user):
+    name = 'Deck '+_generate_id()
     return Deck.objects.create(name = name,
                                slug = slugify(name),
                                format = 'MODERN',
                                type = 'CONSTRUCTED',
                                user = user)
 
-def create_user():
-        username = 'User '+id_generator()
-        return User.objects.create(username = username, password = 'password')
+def _create_user():
+    username = 'User '+_generate_id()
+    return User.objects.create(username = username, password = 'password')
 
 class DeckTests(TestCase):
 
+    def test_can_view_all_decks(self):
+        response = self.client.get(reverse('deck:index'))
+        self.assertEqual(response.status_code, 200)
+        u = _create_user()
+        d = _create_deck(u)
+        response = self.client.get(reverse('deck:index'))
+        self.assertEqual(response.status_code, 200)
+
     def test_can_view_deck(self):
-        u = create_user()
-        d = create_deck(u)
+        u = _create_user()
+        d = _create_deck(u)
         response = self.client.get(reverse('deck:deck_detail', args=[d.slug]))
         self.assertEqual(response.status_code, 200)

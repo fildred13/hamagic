@@ -1,6 +1,8 @@
 from django.conf.urls import patterns, url
 
-urlpatterns = patterns('tourney.views',
-    url(r'^(?P<tourney_slug>[-\w]+)/$', 'tourney', name="tourney"),
-    url(r'^(?P<tourney_slug>[-\w]+)/submit/$', 'submit_results', name="submit"),
-)
+from tourney import views
+
+urlpatterns = [
+    url(r'^(?P<tourney_slug>[-\w]+)/$', views.tourney, name="tourney"),
+    url(r'^(?P<tourney_slug>[-\w]+)/submit/$', views.submit_results, name="submit"),
+]

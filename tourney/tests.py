@@ -14,25 +14,25 @@ from tourney.models import Tourney, Match
 from tourney.tourney_functions import place, count_rounds, count_loser_rounds
 from deck.models import Deck
 
-def id_generator(size=6, chars=string.ascii_uppercase + string.digits):
+def _generate_id(size=6, chars=string.ascii_uppercase + string.digits):
     return ''.join(random.choice(chars) for _ in range(size))
 
-def create_deck(user):
-    name = 'Deck '+id_generator()
+def _create_deck(user):
+    name = 'Deck '+_generate_id()
     return Deck.objects.create(name = name,
                                slug = slugify(name),
                                format = 'MODERN',
                                type = 'CONSTRUCTED',
                                user = user)
 
-def create_user():
-        username = 'User '+id_generator()
+def _create_user():
+        username = 'User '+_generate_id()
         user = User.objects.create(username = username, password = 'password')
         user.set_password('password')
         user.save()
         return user
 
-def create_tourney(num_decks=16, 
+def _create_tourney(num_decks=16, 
                    num_users=4, 
                    format = "MODERN", 
                    type = "CONSTRUCTED",
@@ -43,10 +43,10 @@ def create_tourney(num_decks=16,
                    qr_num_to_advance = 2,
                    num_to_advance = 2
                    ):
-    name = 'Tourney '+id_generator()
+    name = 'Tourney '+_generate_id()
     users = []
     for i in range(num_users):
-        u = create_user()
+        u = _create_user()
         users.append(u)
     cycle = itertools.cycle(users)
     
@@ -64,11 +64,11 @@ def create_tourney(num_decks=16,
                                start_date = timezone.now())
     
     for i in range(num_decks):
-        d = create_deck(next(cycle))
+        d = _create_deck(next(cycle))
         t.decks.add(d)
     return t
 
-def create_empty_tourney( format = "MODERN",
+def _create_empty_tourney( format = "MODERN",
                    type = "CONSTRUCTED",
                    qr_bracket = "SINGLE",
                    bracket = "SINGLE",
@@ -77,7 +77,7 @@ def create_empty_tourney( format = "MODERN",
                    qr_num_to_advance = 2,
                    num_to_advance = 2
                    ):
-    name = 'Tourney '+id_generator()
+    name = 'Tourney '+_generate_id()
 
     t = Tourney.objects.create(name = name,
                                slug = slugify(name),
@@ -102,15 +102,15 @@ class HomepageTests(TestCase):
 class RegistrationTests(TestCase):
 
     def test_can_login(self):
-        u = create_user()
+        u = _create_user()
         login = self.client.login(username=u.username,
                                   password='password')
         self.assertEqual(login, True)
 
     def test_can_register_deck(self):
-        t = create_empty_tourney()
-        u = create_user()
-        d = create_deck(u)
+        t = _create_empty_tourney()
+        u = _create_user()
+        d = _create_deck(u)
         self.client.login(username=u.username,
                           password='password')
         self.client.post(reverse('tourney:tourney', args=(t.slug,)), {'deck': d.name})
@@ -122,12 +122,12 @@ class TourneyTests(TestCase):
     ##### BASIC TOURNAMENT CREATION #####
     #####################################    
     def test_can_start_tourney(self):
-        t = create_tourney(6,4)
+        t = _create_tourney(6,4)
         response = self.client.get(reverse('tourney:tourney', args=(t.slug,)))
         self.assertEqual(response.status_code, 200)
         
     def test_can_advance_deck(self):
-        t = create_tourney(10,4)
+        t = _create_tourney(10,4)
         self.client.get(reverse('tourney:tourney', args=(t.slug,)))
         d = t.decks.order_by('?')[0]
         place(t,2,False,d)
@@ -135,7 +135,7 @@ class TourneyTests(TestCase):
         self.assertEqual(response.status_code, 200)
         
     def test_can_create_lots_of_same_users_in_one_tourney(self):
-        t = create_tourney(54,2)
+        t = _create_tourney(54,2)
         response = self.client.get(reverse('tourney:tourney', args=(t.slug,)))
         self.assertEqual(response.status_code, 200)
         
@@ -159,7 +159,7 @@ class TourneyTests(TestCase):
                 decks = random.randint(65,128)
             
             print('Testing can run single-single tourney of size '+str(decks))    
-            t = create_tourney(decks,4,'MODERN','CONSTRUCTED','SINGLE','SINGLE')
+            t = _create_tourney(decks,4,'MODERN','CONSTRUCTED','SINGLE','SINGLE')
             self.client.get(reverse('tourney:tourney', args=(t.slug,)))
             num_rounds = count_rounds(t)
             for r in range(num_rounds):
@@ -173,12 +173,12 @@ class TourneyTests(TestCase):
     ##### SINGLE-DOUBLE #####
     #########################
     def test_can_create_single_double_tourney(self):
-        t = create_tourney(16,4,'MODERN','CONSTRUCTED','SINGLE','DOUBLE')
+        t = _create_tourney(16,4,'MODERN','CONSTRUCTED','SINGLE','DOUBLE')
         response = self.client.get(reverse('tourney:tourney', args=(t.slug,)))
         self.assertEqual(response.status_code, 200)
     
     def test_can_create_single_double_tourney_with_final(self):
-        t = create_tourney(16,4,'MODERN','CONSTRUCTED','SINGLE','DOUBLE')
+        t = _create_tourney(16,4,'MODERN','CONSTRUCTED','SINGLE','DOUBLE')
         self.client.get(reverse('tourney:tourney', args=(t.slug,)))
         f = Match.objects.get(tourney=t,is_final=True)
         self.assertTrue(f)
@@ -197,7 +197,7 @@ class TourneyTests(TestCase):
                 decks = 128
             
             print('Testing can create single-double tourney of size '+str(decks))    
-            t = create_tourney(decks,4,'MODERN','CONSTRUCTED','SINGLE','DOUBLE')
+            t = _create_tourney(decks,4,'MODERN','CONSTRUCTED','SINGLE','DOUBLE')
             self.client.get(reverse('tourney:tourney', args=(t.slug,)))
             f = Match.objects.get(tourney=t,is_final=True)
             self.assertTrue(f)
@@ -216,7 +216,7 @@ class TourneyTests(TestCase):
                 decks = random.randint(65,128)
             
             print('Testing can run single-double tourney of size '+str(decks))    
-            t = create_tourney(decks,4,'MODERN','CONSTRUCTED','SINGLE','DOUBLE')
+            t = _create_tourney(decks,4,'MODERN','CONSTRUCTED','SINGLE','DOUBLE')
             self.client.get(reverse('tourney:tourney', args=(t.slug,)))
             num_loser_rounds = count_loser_rounds(t)
             num_rounds = count_rounds(t)
@@ -252,7 +252,7 @@ class TourneyTests(TestCase):
                 decks = random.randint(65,128)
             
             print('Testing can run single-round robin tourney of size '+str(decks))    
-            t = create_tourney(decks,4,'MODERN','CONSTRUCTED','SINGLE','ROUND_ROBIN')
+            t = _create_tourney(decks,4,'MODERN','CONSTRUCTED','SINGLE','ROUND_ROBIN')
             self.client.get(reverse('tourney:tourney', args=(t.slug,)))
             num_rounds = count_rounds(t)
             for r in range(num_rounds):
@@ -291,7 +291,7 @@ class TourneyTests(TestCase):
             
             print('Testing can run single-round robin tourney of size '+str(decks))
             print('Testing Group Size '+str(group_size)+' with number of advancers '+str(num_to_advance))   
-            t = create_tourney(decks,4,'MODERN','CONSTRUCTED','SINGLE','ROUND_ROBIN',4,group_size,2,num_to_advance)
+            t = _create_tourney(decks,4,'MODERN','CONSTRUCTED','SINGLE','ROUND_ROBIN',4,group_size,2,num_to_advance)
             response = self.client.get(reverse('tourney:tourney', args=(t.slug,)))
             if response.context['tourney_status'] == 'Error: too few decks to make bracket after round robin play':
                 print('Expected failure: too few decks to make bracket after round robin play')
@@ -310,12 +310,12 @@ class TourneyTests(TestCase):
     ##### DOUBLE-DOUBLE #####
     #########################    
     def test_can_create_double_double_tourney(self):
-        t = create_tourney(16,4,'MODERN','CONSTRUCTED','DOUBLE','DOUBLE')
+        t = _create_tourney(16,4,'MODERN','CONSTRUCTED','DOUBLE','DOUBLE')
         response = self.client.get(reverse('tourney:tourney', args=(t.slug,)))
         self.assertEqual(response.status_code, 200)
         
     def test_can_create_double_double_tourney_with_final(self):
-        t = create_tourney(16,4,'MODERN','CONSTRUCTED','DOUBLE','DOUBLE')
+        t = _create_tourney(16,4,'MODERN','CONSTRUCTED','DOUBLE','DOUBLE')
         response = self.client.get(reverse('tourney:tourney', args=(t.slug,)))
         f = Match.objects.get(tourney=t,is_final=True)
         self.assertTrue(f)
@@ -334,7 +334,7 @@ class TourneyTests(TestCase):
                 decks = 128
             
             print('Testing can create double-double tourney of size '+str(decks))    
-            t = create_tourney(decks,4,'MODERN','CONSTRUCTED','DOUBLE','DOUBLE')
+            t = _create_tourney(decks,4,'MODERN','CONSTRUCTED','DOUBLE','DOUBLE')
             response = self.client.get(reverse('tourney:tourney', args=(t.slug,)))
             f = Match.objects.get(tourney=t,is_final=True)
             self.assertTrue(f)
@@ -353,7 +353,7 @@ class TourneyTests(TestCase):
                 decks = random.randint(65,128)
             
             print('Testing can run double-double tourney of size '+str(decks))    
-            t = create_tourney(decks,4,'MODERN','CONSTRUCTED','DOUBLE','DOUBLE')
+            t = _create_tourney(decks,4,'MODERN','CONSTRUCTED','DOUBLE','DOUBLE')
             self.client.get(reverse('tourney:tourney', args=(t.slug,)))
             num_rounds = count_rounds(t)
             num_loser_rounds = count_loser_rounds(t)
@@ -388,7 +388,7 @@ class TourneyTests(TestCase):
                 decks = random.randint(65,128)
             
             print('Testing can run round robin-single tourney of size '+str(decks))    
-            t = create_tourney(decks,4,'MODERN','CONSTRUCTED','ROUND_ROBIN','SINGLE')
+            t = _create_tourney(decks,4,'MODERN','CONSTRUCTED','ROUND_ROBIN','SINGLE')
             self.client.get(reverse('tourney:tourney', args=(t.slug,)))
             num_rounds = count_rounds(t)
             for r in range(num_rounds):
@@ -431,7 +431,7 @@ class TourneyTests(TestCase):
             
             print('Testing can run round robin-single tourney of size '+str(decks))
             print('Testing Group Size '+str(group_size)+' with number of advancers '+str(num_to_advance))   
-            t = create_tourney(decks,4,'MODERN','CONSTRUCTED','ROUND_ROBIN','SINGLE',group_size,4,num_to_advance,2)
+            t = _create_tourney(decks,4,'MODERN','CONSTRUCTED','ROUND_ROBIN','SINGLE',group_size,4,num_to_advance,2)
             response = self.client.get(reverse('tourney:tourney', args=(t.slug,)))
             if response.context['tourney_status'] == 'Error: too few decks to make bracket after round robin play':
                 print('Expected failure: too few decks to make bracket after round robin play')
@@ -451,7 +451,7 @@ class TourneyTests(TestCase):
     def test_can_run_5_deck_rr_single_tourney(self):
             decks = 5
             print('Testing can run round robin-single tourney of size 5')    
-            t = create_tourney(decks,4,'MODERN','CONSTRUCTED','ROUND_ROBIN','SINGLE')
+            t = _create_tourney(decks,4,'MODERN','CONSTRUCTED','ROUND_ROBIN','SINGLE')
             self.client.get(reverse('tourney:tourney', args=(t.slug,)))
             num_rounds = count_rounds(t)
             for r in range(num_rounds):
@@ -478,7 +478,7 @@ class TourneyTests(TestCase):
                 decks = random.randint(65,128)
             
             print('Testing can run round robin-double tourney of size '+str(decks))    
-            t = create_tourney(decks,4,'MODERN','CONSTRUCTED','ROUND_ROBIN','DOUBLE')
+            t = _create_tourney(decks,4,'MODERN','CONSTRUCTED','ROUND_ROBIN','DOUBLE')
             self.client.get(reverse('tourney:tourney', args=(t.slug,)))
             num_rounds = count_rounds(t)
             num_loser_rounds = count_loser_rounds(t)
@@ -527,7 +527,7 @@ class TourneyTests(TestCase):
             
             print('Testing can run round robin-double tourney of size '+str(decks))
             print('Testing Group Size '+str(group_size)+' with number of advancers '+str(num_to_advance))   
-            t = create_tourney(decks,4,'MODERN','CONSTRUCTED','ROUND_ROBIN','DOUBLE',group_size,4,num_to_advance,2)
+            t = _create_tourney(decks,4,'MODERN','CONSTRUCTED','ROUND_ROBIN','DOUBLE',group_size,4,num_to_advance,2)
             response = self.client.get(reverse('tourney:tourney', args=(t.slug,)))
             if response.context['tourney_status'] == 'Error: too few decks to make bracket after round robin play':
                 print('Expected failure: too few decks to make bracket after round robin play')
@@ -551,7 +551,7 @@ class TourneyTests(TestCase):
             decks = 15
             
             print('Testing can run round robin-double tourney of size '+str(decks))    
-            t = create_tourney(decks,4,'MODERN','CONSTRUCTED','ROUND_ROBIN','DOUBLE',5,4,3,2)
+            t = _create_tourney(decks,4,'MODERN','CONSTRUCTED','ROUND_ROBIN','DOUBLE',5,4,3,2)
             self.client.get(reverse('tourney:tourney', args=(t.slug,)))
             num_rounds = count_rounds(t)
             num_loser_rounds = count_loser_rounds(t)
@@ -584,7 +584,7 @@ class TourneyTests(TestCase):
                 decks = random.randint(65,128)
             
             print('Testing can run round robin-round robin tourney of size '+str(decks))    
-            t = create_tourney(decks,4,'MODERN','CONSTRUCTED','ROUND_ROBIN','ROUND_ROBIN')
+            t = _create_tourney(decks,4,'MODERN','CONSTRUCTED','ROUND_ROBIN','ROUND_ROBIN')
             self.client.get(reverse('tourney:tourney', args=(t.slug,)))
             num_rounds = count_rounds(t)
             for r in range(num_rounds):
@@ -642,7 +642,7 @@ class TourneyTests(TestCase):
             print('Testing can run round robin-round robin tourney of size '+str(decks))
             print('Testing QR Group Size '+str(qr_group_size)+' with QR number of advancers '+str(qr_num_to_advance))  
             print('Testing Group Size '+str(group_size)+' with number of advancers '+str(num_to_advance))   
-            t = create_tourney(decks,4,'MODERN','CONSTRUCTED','ROUND_ROBIN','ROUND_ROBIN',qr_group_size,group_size,qr_num_to_advance,num_to_advance)
+            t = _create_tourney(decks,4,'MODERN','CONSTRUCTED','ROUND_ROBIN','ROUND_ROBIN',qr_group_size,group_size,qr_num_to_advance,num_to_advance)
             response = self.client.get(reverse('tourney:tourney', args=(t.slug,)))
             if response.context['tourney_status'] == 'Error: too few decks to make bracket after round robin play':
                 print('Expected failure: too few decks to make bracket after round robin play')
