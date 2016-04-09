@@ -531,14 +531,13 @@ def user_detail(request,
                 template_name="tourney/user_detail.html"
                 ):
     
-    current_user = request.user
-    user = User.objects.get(username=username)
-    user_tourney_wins = Tourney.objects.filter(winner=user)
-    decks = Deck.objects.filter(user=user, is_active=True).order_by('-match_wins')
-    inactive_decks = Deck.objects.filter(user=user, is_active=False).order_by('-match_wins')
+    viewed_user = User.objects.get(username=username)
+    viewed_user_tourney_wins = Tourney.objects.filter(winner=viewed_user)
+    decks = Deck.objects.filter(user=viewed_user, is_active=True).order_by('-match_wins')
+    inactive_decks = Deck.objects.filter(user=viewed_user, is_active=False).order_by('-match_wins')
     
     if request.method == 'POST':
-        form = PasswordChangeForm(request.POST, instance=user)
+        form = PasswordChangeForm(request.POST, instance=viewed_user)
         if form.is_valid():
             username = form.cleaned_data['username']
             password = form.cleaned_data['password']
@@ -546,17 +545,17 @@ def user_detail(request,
             last_name = form.cleaned_data['last_name']
             email = form.cleaned_data['email']
             
-            user.username = username
-            user.set_password(password)
-            user.first_name = first_name
-            user.last_name = last_name
-            user.email = email
+            viewed_user.username = username
+            viewed_user.set_password(password)
+            viewed_user.first_name = first_name
+            viewed_user.last_name = last_name
+            viewed_user.email = email
             
-            user.save()
-            user = User.objects.get(username=username)
-            return HttpResponseRedirect('/user/'+user.username+'/')
+            viewed_user.save()
+            viewed_user = User.objects.get(username=username)
+            return HttpResponseRedirect('/user/'+viewed_user.username+'/')
     else:
-        form = PasswordChangeForm(instance=user)
+        form = PasswordChangeForm(instance=viewed_user)
     
     return render(request,
                   template_name, 

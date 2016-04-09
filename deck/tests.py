@@ -12,7 +12,7 @@ def _generate_id(size=6, chars=string.ascii_uppercase + string.digits):
     return ''.join(random.choice(chars) for _ in range(size))
 
 def _create_deck(user):
-    name = 'Deck '+_generate_id()
+    name = 'Deck'+_generate_id()
     return Deck.objects.create(name = name,
                                slug = slugify(name),
                                format = 'MODERN',
@@ -20,7 +20,7 @@ def _create_deck(user):
                                user = user)
 
 def _create_user():
-    username = 'User '+_generate_id()
+    username = 'User'+_generate_id()
     return User.objects.create(username = username, password = 'password')
 
 class DeckTests(TestCase):

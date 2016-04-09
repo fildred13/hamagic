@@ -18,7 +18,7 @@ def _generate_id(size=6, chars=string.ascii_uppercase + string.digits):
     return ''.join(random.choice(chars) for _ in range(size))
 
 def _create_deck(user):
-    name = 'Deck '+_generate_id()
+    name = 'Deck'+_generate_id()
     return Deck.objects.create(name = name,
                                slug = slugify(name),
                                format = 'MODERN',
@@ -26,7 +26,7 @@ def _create_deck(user):
                                user = user)
 
 def _create_user():
-        username = 'User '+_generate_id()
+        username = 'User'+_generate_id()
         user = User.objects.create(username = username, password = 'password')
         user.set_password('password')
         user.save()
@@ -99,13 +99,28 @@ class HomepageTests(TestCase):
         response = self.client.get('/')
         self.assertEqual(response.status_code, 200)
 
-class RegistrationTests(TestCase):
+class UserTests(TestCase):
 
     def test_can_login(self):
         u = _create_user()
         login = self.client.login(username=u.username,
                                   password='password')
         self.assertEqual(login, True)
+
+    def test_correct_username_for_current_user_on_user_page(self):
+        """
+        Test that the correct username appears in the welcome message in the top-right
+        when viewing a user page as a different user. This test is in direct response to 
+        a bug in which the viewed user's username was being displayed in the welcome message.
+        """
+        u = _create_user()
+        u2 = _create_user()
+        self.client.login(username=u.username,
+                          password='password')
+        response = self.client.get(reverse('user_detail', args=(str(u2.username),)))
+        self.assertEqual(response.context['user'].username, u.username)
+
+class RegistrationTests(TestCase):
 
     def test_can_register_deck(self):
         t = _create_empty_tourney()
