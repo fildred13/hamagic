@@ -1,5 +1,7 @@
 # Project Ignores
 magic/settings_secret.py
+*sftp-config.json
+magicDB
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
