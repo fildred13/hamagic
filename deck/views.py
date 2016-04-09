@@ -1,7 +1,7 @@
 import string
 
 from django.http import HttpResponseRedirect
-from django.shortcuts import render_to_response
+from django.shortcuts import render
 from django.core.mail import send_mail
 from django.contrib.auth.models import User
 from django.template import RequestContext
@@ -46,9 +46,10 @@ def deck(request,
         username = request.user.username
         user_decks = Deck.objects.filter(user=user)
     
-    return render_to_response(template_name, 
-                              locals(), 
-                              context_instance=RequestContext(request))
+    return render(request,
+                  template_name, 
+                  locals(), 
+                  context_instance=RequestContext(request))
     
     
 def deck_detail(request,
@@ -196,9 +197,10 @@ def deck_detail(request,
     else:
         form = DeckForm(instance=deck)       
     
-    return render_to_response(template_name, 
-                              locals(), 
-                              context_instance=RequestContext(request))
+    return render(request,
+                  template_name, 
+                  locals(), 
+                  context_instance=RequestContext(request))
     
     
     

@@ -1,5 +1,5 @@
 from django.http import HttpResponseRedirect
-from django.shortcuts import render_to_response
+from django.shortcuts import render
 from django.core.urlresolvers import reverse
 from django.contrib import messages
 from django.contrib.auth.models import User
@@ -57,9 +57,10 @@ def index(request,
                     if not tourney_already_accounted:
                         user_tourneys.append(t)
                             
-    return render_to_response(template_name, 
-                              locals(), 
-                              context_instance=RequestContext(request))
+    return render(request,
+                  template_name, 
+                  locals(), 
+                  context_instance=RequestContext(request))
     
 def tourney(request,
             tourney_slug,
@@ -253,9 +254,10 @@ def tourney(request,
     elif tourney_status == 'Error: too few decks to make bracket after round robin play':
         messages.error(request, tourney_status)
 
-    return render_to_response(template_name, 
-                              locals(), 
-                              context_instance=RequestContext(request))
+    return render(request,
+                  template_name, 
+                  locals(), 
+                  context_instance=RequestContext(request))
     
 def submit_results(request,
                    tourney_slug,
@@ -556,9 +558,10 @@ def user_detail(request,
     else:
         form = PasswordChangeForm(instance=user)
     
-    return render_to_response(template_name, 
-                              locals(), 
-                              context_instance=RequestContext(request))
+    return render(request,
+                  template_name, 
+                  locals(), 
+                  context_instance=RequestContext(request))
 
 
 
