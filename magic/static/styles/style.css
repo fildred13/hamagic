@@ -456,11 +456,13 @@ th {
 		border-radius: 10px;
 		text-align: center;
 		z-index: 999;
+		display: none;
 	}
 	
 	.who_won_form h4 {
 		font-size: 26px;
-		font-weight: 700;	
+		font-weight: 700;
+		margin-top: 10px;	
 	}
 	
 	.who_won_form h5 {
@@ -518,20 +520,22 @@ th {
 			left: 160px;
 			clear: both;
 		}
+
+		.who_won_form .form_wrapper input[type=submit]:hover {
+			cursor: pointer;
+    		background-color: #0E4CA8;
+    		border-color: #0E4CA8;
+		}
+
 	
 		.who_won_hide_but {
-			background: blue;
-			width: 100px;
-			padding: 5px;
-			border-radius: 5px;
-			text-align: center;
+			width: 29px;
 			position: absolute;
-			right: 10px;
-			top: 230px;
+			right: -12px;
+			top: -12px;
 		}
 		
 		.who_won_hide_but:hover {
-			background: teal;
 			cursor: pointer;
 		}
 		

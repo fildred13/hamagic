@@ -256,7 +256,7 @@
 							  	  		Multiple 
 							  	  {% else %}
 									  {% for wd in tourney.winning_deck.all %}
-									  		<a href="/deck/{{wd.slug}}/">{{ wd }}</a>
+									  		<a href="/deck/{{wd.slug}}/">{{ wd.name }}</a>
 									  {% endfor %}
 								  {% endif %}
 							  </td>
