@@ -82,7 +82,6 @@ class Tourney(models.Model):
     
     max_decks_per_player = models.PositiveSmallIntegerField(default = 1)
     decks = models.ManyToManyField(Deck,
-                                   null = True,
                                    blank = True
                                    )
     
@@ -101,7 +100,6 @@ class Tourney(models.Model):
                                related_name="%(app_label)s_%(class)s_winner"
                                )
     winning_deck = models.ManyToManyField(Deck,
-                                          null = True,
                                           blank = True,
                                           related_name="%(app_label)s_%(class)s_windeck"
                                          )
@@ -112,7 +110,7 @@ class Tourney(models.Model):
             matches_remaining = 'Not Started'
         return str(matches_remaining)
     
-    def __unicode__(self):
+    def __str__(self):
         return self.name
  
 class Group(models.Model):
@@ -127,20 +125,19 @@ class Group(models.Model):
     
     decks = models.ManyToManyField(Deck,
                                    through='GroupStats',
-                                   null = True,
                                    blank = True
                                    )
     
     is_active = models.BooleanField(default=False)
     
-    def __unicode__(self):    
+    def __str__(self):    
         return 'Group '+str(self.id)
     
 class GroupStats(models.Model):
     deck = models.ForeignKey(Deck)
     group = models.ForeignKey(Group)
     points = models.PositiveSmallIntegerField(default = 0)
-    margin = models.PositiveSmallIntegerField(default = 0)
+    margin = models.SmallIntegerField(default = 0)
     
 class Match(models.Model):
     tourney = models.ForeignKey(Tourney)
@@ -188,7 +185,7 @@ class Match(models.Model):
                                           blank = True
                                          )
     
-    def __unicode__(self):
+    def __str__(self):
         if self.first_deck:
             first_deck_text = self.first_deck.name
         else:

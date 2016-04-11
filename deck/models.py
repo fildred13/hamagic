@@ -63,5 +63,5 @@ class Deck(models.Model):
             win_rate_number = 0
         return win_rate_number
     
-    def __unicode__(self):
+    def __str__(self):
         return self.name

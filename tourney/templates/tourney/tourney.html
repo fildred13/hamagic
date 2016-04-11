@@ -29,7 +29,7 @@
 		
 		{% if tourney.is_finished %}
 			<div id="winner_box" class="boxed">
-				<p>This tourney is over.  The winner was {{ tourney.winner }} with {{ tourney.winning_deck.get }}!</p>
+				<p>This tourney is over.  The winner was {{ tourney.winner }} with {{ tourney.winning_deck.get.name }}!</p>
 			</div>
 		{% endif %}
 		
@@ -132,7 +132,7 @@
                                         <table>
                                             <tr>
                                                 <th>Deck</th>
-                                                <th class="th_right">P</th>
+                                                <th class="th_right">W</th>
                                                 <th class="th_right">M</th>
                                             </tr>
                                         </table>
@@ -161,7 +161,7 @@
                                     <table>
                                         <tr>
                                             <th>Deck</th>
-                                            <th class="th_right">P</th>
+                                            <th class="th_right">W</th>
                                             <th class="th_right">M</th>
                                         </tr>
                                     </table>

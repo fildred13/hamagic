@@ -1,7 +1,7 @@
 from django import forms
 from django.contrib import admin
 
-from tourney.models import Tourney, Match, Group
+from tourney.models import Tourney, Match, Group, GroupStats
 
 class MatchInline(admin.TabularInline):
     model = Match
