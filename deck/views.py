@@ -164,7 +164,7 @@ def deck_detail(request,
                             safe_to_change = False
     
     if request.method == 'POST':
-        old_deck_list = deck.deck_list
+        old_deck_list = deck.deck_list if deck.deck_list else 'Empty Decklist'
         form = DeckForm(request.POST, instance=deck)
         if form.is_valid():
             name = form.cleaned_data['name']
@@ -174,9 +174,6 @@ def deck_detail(request,
             deck_list = form.cleaned_data['deck_list']
             is_active = form.cleaned_data['is_active']
 
-            print(safe_to_change)
-            print(old_deck_list)
-            print(deck_list)
             if safe_to_change == False and old_deck_list != deck_list:
                 send_mail('HAM: Active Deck Warning', 
                           'The deck '+deck.name+' owned by '+deck.user.username+' is active in tournaments, but had a change to its decklist.\n\nThe old decklist was:\n'+old_deck_list+'\n\nThe new decklist is:\n'+deck_list, 
