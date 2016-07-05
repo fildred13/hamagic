@@ -2,7 +2,6 @@ import string
 
 from django.http import HttpResponseRedirect
 from django.shortcuts import render
-from django.core.mail import send_mail
 from django.contrib.auth.models import User
 from django.template import RequestContext
 from django.utils import timezone
@@ -175,10 +174,8 @@ def deck_detail(request,
             is_active = form.cleaned_data['is_active']
 
             if safe_to_change == False and old_deck_list != deck_list:
-                send_mail('HAM: Active Deck Warning', 
-                          'The deck '+deck.name+' owned by '+deck.user.username+' is active in tournaments, but had a change to its decklist.\n\nThe old decklist was:\n'+old_deck_list+'\n\nThe new decklist is:\n'+deck_list, 
-                          'admin@hamagic.com', ['fildred13@gmail.com'], 
-                          fail_silently=False)
+                # If desired, implement a system to log mid-tournament decklist changes
+                pass
             
             deck.name = name
             deck.slug = slugify(name)
